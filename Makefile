@@ -44,4 +44,11 @@ release: prerelease
 	@read yn; if [ yes -ne $(yn) ]; then exit 1; fi
 	@echo "Here we go..."
 	cd snapshot; python setup.py sdist --formats=gztar,zip register upload
-	
+
+rpm:
+	git archive --output=googleapipysdk-rpm-src.tar.gz --prefix=googleapipysdk/ HEAD
+	rpmbuild -bb googleapipysdk.spec \
+		--define '_sourcedir $(shell pwd)' \
+		--define 'major_version $(shell git describe --abbrev=0 | cut -c2-)' \
+		--define 'minor_version $(subst -,.,$(shell git describe --long | cut -f2- -d-))'
+	$(RM) googleapipysdk-rpm-src.tar.gz
